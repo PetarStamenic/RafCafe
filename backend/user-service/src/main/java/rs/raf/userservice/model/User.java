@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@Entity
+@Entity(name = "users")
 @Getter
 @Setter
 @Accessors(chain = true)
