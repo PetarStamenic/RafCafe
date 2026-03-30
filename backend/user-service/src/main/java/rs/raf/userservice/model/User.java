@@ -18,12 +18,6 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 public class User {
-    public enum Role {
-        ADMINISTRATOR,
-        MANAGER,
-        CUSTOMER,
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -46,5 +40,5 @@ public class User {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private UserRole role;
 }

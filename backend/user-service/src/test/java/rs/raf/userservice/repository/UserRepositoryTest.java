@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
 import rs.raf.userservice.model.User;
+import rs.raf.userservice.model.UserRole;
 
 @DataJpaTest
 class UserRepositoryTest {
@@ -23,7 +24,7 @@ class UserRepositoryTest {
 
     @Test
     void shouldFindUsersByRole() {
-        List<User> users = repo.findAllByRole(User.Role.ADMINISTRATOR);
+        List<User> users = repo.findAllByRole(UserRole.ADMINISTRATOR);
         assertFalse(users.isEmpty());
     }
 

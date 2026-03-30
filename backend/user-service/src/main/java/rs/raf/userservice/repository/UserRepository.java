@@ -6,12 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import rs.raf.userservice.model.User;
 import java.util.List;
-import rs.raf.userservice.model.User.Role;
+import rs.raf.userservice.model.UserRole;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
-    List<User> findAllByRole(Role role);
+    List<User> findAllByRole(UserRole role);
 
     List<User> findAllByEmail(String email);
 }
