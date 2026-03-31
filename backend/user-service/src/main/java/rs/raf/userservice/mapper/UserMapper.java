@@ -3,7 +3,6 @@ package rs.raf.userservice.mapper;
 import org.springframework.stereotype.Component;
 
 import rs.raf.userservice.dto.user.RegisterUserRequestDTO;
-import rs.raf.userservice.dto.user.RegisterUserResponseDTO;
 import rs.raf.userservice.dto.user.UserResponseDTO;
 import rs.raf.userservice.model.User;
 
