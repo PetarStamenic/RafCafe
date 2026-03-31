@@ -3,6 +3,7 @@ package rs.raf.userservice.error;
 import java.time.LocalDateTime;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -28,5 +29,17 @@ public class GlobalExceptionHandler {
             ex.getMessage()
         );
         return ResponseEntity.status(409).body(errorResponse);
+    }
+
+    // Not great, but it works for now
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            400,
+            LocalDateTime.now(),
+            errorMessage
+        );
+        return ResponseEntity.status(400).body(errorResponse);
     }
 }

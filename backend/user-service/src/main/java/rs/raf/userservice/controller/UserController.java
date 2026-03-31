@@ -67,7 +67,7 @@ public class UserController {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "409", description = "Conflict")
     })
-    @Parameter(name = "requestDTO", description = "User registration data", required = true)
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User registration data", required = true)
     @PostMapping
     public ResponseEntity<UserResponseDTO> registerUser(
             @RequestBody @Valid RegisterUserRequestDTO requestDTO,
@@ -75,6 +75,6 @@ public class UserController {
     ) {
         String ip = httpRequest.getRemoteAddr();
         var response = service.registerUser(requestDTO, ip);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.created(null).body(response);
     }
 }
