@@ -57,7 +57,7 @@ public class UserController {
         @ApiResponse(responseCode = "404", description = "Not found")
     })
     @Parameter(name = "username", description = "Username of the user to retrieve", required = true)
-    @GetMapping("/{username}")
+    @GetMapping("/username/{username}")
     public ResponseEntity<UserResponseDTO> getByUsername(@PathVariable String username) {
         var response = service.getByUsername(username);
         return ResponseEntity.ok(response);
