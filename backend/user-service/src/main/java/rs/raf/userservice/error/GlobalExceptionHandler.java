@@ -34,11 +34,14 @@ public class GlobalExceptionHandler {
     // Not great, but it works for now
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        String errorMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        StringBuilder errorMessage = new StringBuilder("Validation failed:\n");
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            errorMessage.append(String.format("Field '%s': %s\n", error.getField(), error.getDefaultMessage()));
+        });
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
             400,
             LocalDateTime.now(),
-            errorMessage
+            errorMessage.toString().trim()
         );
         return ResponseEntity.status(400).body(errorResponse);
     }

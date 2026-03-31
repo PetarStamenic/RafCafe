@@ -64,7 +64,8 @@ public class UserController {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "201", description = "Created"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
         @ApiResponse(responseCode = "409", description = "Conflict")
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User registration data", required = true)
@@ -75,6 +76,6 @@ public class UserController {
     ) {
         String ip = httpRequest.getRemoteAddr();
         var response = service.registerUser(requestDTO, ip);
-        return ResponseEntity.created(null).body(response);
+        return ResponseEntity.status(201).body(response);
     }
 }

@@ -13,6 +13,7 @@ public record RegisterUserRequestDTO(
     @NotBlank
     String password,
     @Schema(description = "Email of the new user", example = "jdoe@example.com")
+    @NotBlank
     @Email
     String email,
     @Schema(description = "First name of the new user", example = "John")
