@@ -19,4 +19,14 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(404).body(errorResponse);
     }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            409,
+            LocalDateTime.now(),
+            ex.getMessage()
+        );
+        return ResponseEntity.status(409).body(errorResponse);
+    }
 }
