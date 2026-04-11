@@ -3,6 +3,7 @@ package rs.raf.userservice.dto.user;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Schema(description = "DTO for registering a new user")
 public record RegisterUserRequestDTO(
@@ -11,6 +12,7 @@ public record RegisterUserRequestDTO(
     String username,
     @Schema(description = "Password of the new user", example = "P@ssw0rd!")
     @NotBlank
+    @Size(min=8)
     String password,
     @Schema(description = "Email of the new user", example = "jdoe@example.com")
     @NotBlank

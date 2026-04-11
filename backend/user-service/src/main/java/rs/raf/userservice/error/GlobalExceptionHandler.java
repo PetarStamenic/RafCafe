@@ -21,6 +21,11 @@ public class GlobalExceptionHandler {
         return buildResponse(409, ex.getMessage());
     }
 
+    @ExceptionHandler(PasswordMismatchException.class)
+    public ResponseEntity<ErrorResponseDTO> handlePasswordMismatchException(PasswordMismatchException ex) {
+        return buildResponse(401, ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
         StringBuilder errorMessage = new StringBuilder("Validation failed:\n");
