@@ -13,36 +13,30 @@ import rs.raf.userservice.dto.ErrorResponseDTO;
 public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleUserNotFoundException(UserNotFoundException ex) {
-        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
-            404,
-            LocalDateTime.now(),
-            ex.getMessage()
-        );
-        return ResponseEntity.status(404).body(errorResponse);
+        return buildResponse(404, ex.getMessage());
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponseDTO> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
-        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
-            409,
-            LocalDateTime.now(),
-            ex.getMessage()
-        );
-        return ResponseEntity.status(409).body(errorResponse);
+        return buildResponse(409, ex.getMessage());
     }
 
-    // Not great, but it works for now
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
         StringBuilder errorMessage = new StringBuilder("Validation failed:\n");
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             errorMessage.append(String.format("Field '%s': %s\n", error.getField(), error.getDefaultMessage()));
         });
-        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
-            400,
-            LocalDateTime.now(),
-            errorMessage.toString().trim()
-        );
-        return ResponseEntity.status(400).body(errorResponse);
+        return buildResponse(400, errorMessage.toString().trim());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex) {
+        return buildResponse(500, "An unexpected error occurred: " + ex.getMessage());
+    }
+
+    private ResponseEntity<ErrorResponseDTO> buildResponse(int status, String message) {
+        ErrorResponseDTO dto = new ErrorResponseDTO(status, LocalDateTime.now(), message);
+        return ResponseEntity.status(status).body(dto);
     }
 }
