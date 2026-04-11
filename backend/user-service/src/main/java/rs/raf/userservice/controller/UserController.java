@@ -15,8 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import rs.raf.userservice.dto.user.RegisterUserRequestDTO;
-import rs.raf.userservice.dto.user.UserResponseDTO;
+import rs.raf.userservice.dto.user.*;
 import rs.raf.userservice.service.UserService;
 
 @RestController
@@ -77,5 +76,13 @@ public class UserController {
         String ip = httpRequest.getRemoteAddr();
         var response = service.registerUser(requestDTO, ip);
         return ResponseEntity.status(201).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> loginUser(
+            @RequestBody @Valid LoginRequestDTO request
+    ) {
+        var response = service.loginUser(request);
+        return ResponseEntity.ok(response);
     }
 }

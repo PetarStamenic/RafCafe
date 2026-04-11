@@ -35,7 +35,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
         String username = jwtUtil.verify(token);
-        if (username == null) {
+        if (username == null || SecurityContextHolder.getContext().getAuthentication() != null) {
             doFilter(request, response, filterChain);
             return;
         }
