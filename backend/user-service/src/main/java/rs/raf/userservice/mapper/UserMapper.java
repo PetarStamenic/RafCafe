@@ -1,5 +1,6 @@
 package rs.raf.userservice.mapper;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import rs.raf.userservice.dto.user.RegisterUserRequestDTO;
@@ -9,10 +10,16 @@ import rs.raf.userservice.model.UserRole;
 
 @Component
 public class UserMapper {
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    public UserMapper(BCryptPasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     public User toEntity(RegisterUserRequestDTO dto) {
         return new User()
             .setUsername(dto.username())
-            .setPassword(dto.password()) // TODO: hash passwords
+            .setPassword(passwordEncoder.encode(dto.password()))
             .setEmail(dto.email())
             .setFirstName(dto.firstName())
             .setLastName(dto.lastName())

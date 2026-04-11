@@ -14,7 +14,7 @@ public record RegisterUserRequestDTO(
     String password,
     @Schema(description = "Email of the new user", example = "jdoe@example.com")
     @NotBlank
-    @Email
+    @Email(message = "Email should be valid")
     String email,
     @Schema(description = "First name of the new user", example = "John")
     String firstName,

@@ -13,12 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import rs.raf.userservice.dto.user.RegisterUserRequestDTO;
-import rs.raf.userservice.dto.user.UserResponseDTO;
+import rs.raf.userservice.dto.user.*;
 import rs.raf.userservice.service.UserService;
 
+@Tag(name = "User Controller", description = "Endpoints for managing users")
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
@@ -66,7 +67,7 @@ public class UserController {
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Created"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
-        @ApiResponse(responseCode = "409", description = "Conflict")
+        @ApiResponse(responseCode = "409", description = "Conflict"),
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User registration data", required = true)
     @PostMapping
@@ -77,5 +78,19 @@ public class UserController {
         String ip = httpRequest.getRemoteAddr();
         var response = service.registerUser(requestDTO, ip);
         return ResponseEntity.status(201).body(response);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "404", description = "Not found"),
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User login data", required = true)
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> loginUser(
+            @RequestBody @Valid LoginRequestDTO request
+    ) {
+        var response = service.loginUser(request);
+        return ResponseEntity.ok(response);
     }
 }
