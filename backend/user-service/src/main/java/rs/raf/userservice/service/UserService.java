@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import rs.raf.userservice.dto.user.*;
 import rs.raf.userservice.error.PasswordMismatchException;
@@ -61,21 +62,17 @@ public class UserService {
         return mapper.toDTO(user);
     }
 
+    @Transactional
     public UserResponseDTO updateUser(Long id, UpdateUserRequestDTO dto, String ip) {
         User user = repo.findById(id)
             .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
 
-        if (
-                dto.oldPassword() == null ||
-                dto.newPassword() == null ||
-                dto.oldPassword().equals(dto.newPassword()) ||
-                !passwords.matches(dto.oldPassword(), user.getPassword())
-        ) {
-            throw new PasswordMismatchException("Old password does not match or new password is the same as old password");
+        if (!passwords.matches(dto.oldPassword(), user.getPassword())) {
+            throw new PasswordMismatchException("Old password does not match");
         }
 
-        user.setPassword(passwords.encode(dto.newPassword()));
         if (dto.username() != null) user.setUsername(dto.username());
+        if (dto.newPassword() != null) user.setPassword(passwords.encode(dto.newPassword()));
         if (dto.email() != null) user.setEmail(dto.email());
         if (dto.firstName() != null) user.setFirstName(dto.firstName());
         if (dto.lastName() != null) user.setLastName(dto.lastName());

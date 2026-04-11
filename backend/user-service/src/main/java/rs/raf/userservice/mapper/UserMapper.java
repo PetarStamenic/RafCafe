@@ -33,7 +33,7 @@ public class UserMapper {
             user.getEmail(),
             user.getFirstName(),
             user.getLastName(),
-            user.getRole().name()
+            user.getRole()
         );
     }
 }

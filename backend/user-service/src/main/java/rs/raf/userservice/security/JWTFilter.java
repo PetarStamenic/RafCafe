@@ -18,7 +18,7 @@ import rs.raf.userservice.util.JWTUtil;
 @Component
 public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
-    private CustomUserService service;
+    private final CustomUserService service;
 
     public JWTFilter(JWTUtil jwtUtil, CustomUserService service) {
         this.jwtUtil = jwtUtil;

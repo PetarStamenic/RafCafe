@@ -38,9 +38,6 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAll() {
         var response = service.getAll();
-        if (response.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(response);
     }
 

@@ -52,7 +52,7 @@ class UserServiceTest {
             user.getEmail(),
             user.getFirstName(),
             user.getLastName(),
-            user.getRole().name()
+            user.getRole()
         );
     }
 
