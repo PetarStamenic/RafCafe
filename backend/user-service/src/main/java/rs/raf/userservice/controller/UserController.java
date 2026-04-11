@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import rs.raf.userservice.dto.user.*;
 import rs.raf.userservice.service.UserService;
 
+@Tag(name = "User Controller", description = "Endpoints for managing users")
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {

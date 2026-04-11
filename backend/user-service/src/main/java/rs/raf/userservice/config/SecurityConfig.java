@@ -9,18 +9,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import rs.raf.userservice.security.CustomUserService;
 import rs.raf.userservice.security.JWTFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     private final JWTFilter jwtFilter;
-    private final CustomUserService customUserService;
 
-    public SecurityConfig(JWTFilter jwtFilter, CustomUserService customUserService) {
+    public SecurityConfig(JWTFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
-        this.customUserService = customUserService;
     }
 
     @Bean
@@ -31,6 +28,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth ->
                 auth.requestMatchers("/api/v1/users").permitAll()
                 .requestMatchers("/api/v1/users/login").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
