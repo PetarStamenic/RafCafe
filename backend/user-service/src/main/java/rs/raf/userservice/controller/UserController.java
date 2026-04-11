@@ -67,7 +67,7 @@ public class UserController {
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Created"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
-        @ApiResponse(responseCode = "409", description = "Conflict")
+        @ApiResponse(responseCode = "404", description = "Not found"),
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User registration data", required = true)
     @PostMapping

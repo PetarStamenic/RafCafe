@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex) {
-        return buildResponse(500, "An unexpected error occurred: " + ex.getMessage());
+        return buildResponse(500, "An unexpected error occurred");
     }
 
     private ResponseEntity<ErrorResponseDTO> buildResponse(int status, String message) {

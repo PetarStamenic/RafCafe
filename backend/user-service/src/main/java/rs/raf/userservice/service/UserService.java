@@ -62,10 +62,10 @@ public class UserService {
 
     public LoginResponseDTO loginUser(LoginRequestDTO dto) {
         User user = repo.findByUsername(dto.username())
-            .orElseThrow(() -> new UserNotFoundException("User with username " + dto.username() + " not found"));
+            .orElseThrow(() -> new UserNotFoundException("Username and password do not match"));
 
         if (!passwords.matches(dto.password(), user.getPassword())) {
-            throw new UserNotFoundException("Invalid password");
+            throw new UserNotFoundException("Username and password do not match");
         }
 
         String token = jwt.issue(user.getUsername());
