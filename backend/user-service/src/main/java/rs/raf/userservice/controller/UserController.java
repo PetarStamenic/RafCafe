@@ -80,6 +80,12 @@ public class UserController {
         return ResponseEntity.status(201).body(response);
     }
 
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "409", description = "Conflict")
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User login data", required = true)
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> loginUser(
             @RequestBody @Valid LoginRequestDTO request
