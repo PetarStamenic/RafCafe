@@ -3,6 +3,7 @@ package rs.raf.userservice.service;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +63,7 @@ public class UserService {
         return mapper.toDTO(user);
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     @Transactional
     public UserResponseDTO updateUser(Long id, UpdateUserRequestDTO dto, String ip) {
         User user = repo.findById(id)
@@ -87,6 +89,7 @@ public class UserService {
         return mapper.toDTO(user);
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public void deleteUser(Long id) {
         User user = repo.findById(id)
             .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
