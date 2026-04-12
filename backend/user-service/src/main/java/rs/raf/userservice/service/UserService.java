@@ -63,7 +63,7 @@ public class UserService {
         return mapper.toDTO(user);
     }
 
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or #id == authentication.principal.id")
     @Transactional
     public UserResponseDTO updateUser(Long id, UpdateUserRequestDTO dto, String ip) {
         User user = repo.findById(id)
@@ -89,7 +89,7 @@ public class UserService {
         return mapper.toDTO(user);
     }
 
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or #id == authentication.principal.id")
     public void deleteUser(Long id) {
         User user = repo.findById(id)
             .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
