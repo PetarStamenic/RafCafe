@@ -81,7 +81,7 @@ public class UserController {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Not found"),
         @ApiResponse(responseCode = "409", description = "Conflict"),
     })
@@ -100,6 +100,7 @@ public class UserController {
 
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "No content"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Not found"),
     })
     @Parameter(name = "id", description = "ID of the user to delete", required = true)

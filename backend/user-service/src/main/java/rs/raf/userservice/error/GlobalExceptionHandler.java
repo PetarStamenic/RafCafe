@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PasswordMismatchException.class)
     public ResponseEntity<ErrorResponseDTO> handlePasswordMismatchException(PasswordMismatchException ex) {
-        return buildResponse(401, ex.getMessage());
+        return buildResponse(403, ex.getMessage());
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)

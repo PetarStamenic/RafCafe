@@ -58,7 +58,7 @@ public class UserService {
         try {
             user = repo.save(user);
         } catch (DataIntegrityViolationException e) {
-            throw new UserAlreadyExistsException("User with username " + dto.username() + " already exists");
+            throw new UserAlreadyExistsException("User with username " + dto.username() + " or email " + dto.email() + " already exists");
         }
         return mapper.toDTO(user);
     }
@@ -69,12 +69,15 @@ public class UserService {
         User user = repo.findById(id)
             .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
 
-        if (!passwords.matches(dto.oldPassword(), user.getPassword())) {
-            throw new PasswordMismatchException("Old password does not match");
+        if (dto.newPassword() != null) {
+            // Will return false if any value here is null
+            if (!passwords.matches(dto.oldPassword(), user.getPassword())) {
+                throw new PasswordMismatchException("Old password does not match");
+            }
+            user.setPassword(passwords.encode(dto.newPassword()));
         }
 
         if (dto.username() != null) user.setUsername(dto.username());
-        if (dto.newPassword() != null) user.setPassword(passwords.encode(dto.newPassword()));
         if (dto.email() != null) user.setEmail(dto.email());
         if (dto.firstName() != null) user.setFirstName(dto.firstName());
         if (dto.lastName() != null) user.setLastName(dto.lastName());
@@ -83,7 +86,7 @@ public class UserService {
         try {
             user = repo.save(user);
         } catch (DataIntegrityViolationException e) {
-            throw new UserAlreadyExistsException("User with username " + dto.username() + " already exists");
+            throw new UserAlreadyExistsException("User with username " + dto.username() + " or email " + dto.email() + " already exists");
         }
 
         return mapper.toDTO(user);
