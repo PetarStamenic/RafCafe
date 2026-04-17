@@ -3,9 +3,11 @@ package rs.raf.userservice.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,9 +38,6 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAll() {
         var response = service.getAll();
-        if (response.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(response);
     }
 
@@ -78,6 +77,37 @@ public class UserController {
         String ip = httpRequest.getRemoteAddr();
         var response = service.registerUser(requestDTO, ip);
         return ResponseEntity.status(201).body(response);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Not found"),
+        @ApiResponse(responseCode = "409", description = "Conflict"),
+    })
+    @Parameter(name = "id", description = "ID of the user to update", required = true)
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User update data", required = true)
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserRequestDTO dto,
+            HttpServletRequest request
+    ) {
+        String ip = request.getRemoteAddr();
+        var response = service.updateUser(id, dto, ip);
+        return ResponseEntity.ok(response);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "No content"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Not found"),
+    })
+    @Parameter(name = "id", description = "ID of the user to delete", required = true)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        service.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
     @ApiResponses({

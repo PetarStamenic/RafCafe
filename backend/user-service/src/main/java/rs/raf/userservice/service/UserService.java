@@ -3,10 +3,13 @@ package rs.raf.userservice.service;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import rs.raf.userservice.dto.user.*;
+import rs.raf.userservice.error.PasswordMismatchException;
 import rs.raf.userservice.error.UserAlreadyExistsException;
 import rs.raf.userservice.error.UserNotFoundException;
 import rs.raf.userservice.mapper.UserMapper;
@@ -55,9 +58,45 @@ public class UserService {
         try {
             user = repo.save(user);
         } catch (DataIntegrityViolationException e) {
-            throw new UserAlreadyExistsException("User with username " + dto.username() + " already exists");
+            throw new UserAlreadyExistsException("User with username " + dto.username() + " or email " + dto.email() + " already exists");
         }
         return mapper.toDTO(user);
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRATOR') or #id == authentication.principal.id")
+    @Transactional
+    public UserResponseDTO updateUser(Long id, UpdateUserRequestDTO dto, String ip) {
+        User user = repo.findById(id)
+            .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+
+        if (dto.newPassword() != null) {
+            // Will return false if any value here is null
+            if (!passwords.matches(dto.oldPassword(), user.getPassword())) {
+                throw new PasswordMismatchException("Old password does not match");
+            }
+            user.setPassword(passwords.encode(dto.newPassword()));
+        }
+
+        if (dto.username() != null) user.setUsername(dto.username());
+        if (dto.email() != null) user.setEmail(dto.email());
+        if (dto.firstName() != null) user.setFirstName(dto.firstName());
+        if (dto.lastName() != null) user.setLastName(dto.lastName());
+        user.setIpAddress(ip);
+
+        try {
+            user = repo.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new UserAlreadyExistsException("User with username " + dto.username() + " or email " + dto.email() + " already exists");
+        }
+
+        return mapper.toDTO(user);
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRATOR') or #id == authentication.principal.id")
+    public void deleteUser(Long id) {
+        User user = repo.findById(id)
+            .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+        repo.delete(user);
     }
 
     public LoginResponseDTO loginUser(LoginRequestDTO dto) {
