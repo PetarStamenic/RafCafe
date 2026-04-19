@@ -1,8 +1,10 @@
 package com.staticvoid.menuandordersservice.specification;
 
-import com.staticvoid.menuandordersservice.dto.MenuItemFilterDto;
+import com.staticvoid.menuandordersservice.dto.filters.MenuItemFilterDto;
 import com.staticvoid.menuandordersservice.model.MenuItem;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.Locale;
 
 public class MenuItemSpecification {
 
@@ -23,7 +25,10 @@ public class MenuItemSpecification {
             if (name == null || name.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            return cb.like(cb.lower(root.get("name")), "%" + name.trim().toLowerCase() + "%");
+            return cb.like(
+                    cb.lower(root.get("name")),
+                    "%" + name.trim().toLowerCase(Locale.ROOT) + "%"
+            );
         };
     }
 

@@ -5,25 +5,27 @@ import com.staticvoid.menuandordersservice.dto.response.IngredientResponseDto;
 import com.staticvoid.menuandordersservice.dto.response.MenuItemResponseDto;
 import com.staticvoid.menuandordersservice.model.MenuItem;
 import com.staticvoid.menuandordersservice.model.MenuItemIngredient;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class MenuMapper {
 
-    private MenuMapper() {
-    }
-
-    public static void updateMenuItemFromRequest(MenuItem menuItem, MenuItemRequestDto request) {
+    public void updateMenuItemFromRequest(MenuItem menuItem, MenuItemRequestDto request) {
         menuItem.setName(request.getName());
         menuItem.setType(request.getType());
         menuItem.setSeason(request.getSeason());
         menuItem.setDescription(request.getDescription());
         menuItem.setBasePrice(request.getBasePrice());
-        menuItem.setAvailable(request.isAvailable());
+
+        if (request.getAvailable() != null) {
+            menuItem.setAvailable(request.getAvailable());
+        }
     }
 
-    public static MenuItemResponseDto toResponse(MenuItem menuItem) {
+    public MenuItemResponseDto toResponse(MenuItem menuItem) {
         MenuItemResponseDto response = new MenuItemResponseDto();
         response.setId(menuItem.getId());
         response.setName(menuItem.getName());

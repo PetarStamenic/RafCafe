@@ -5,11 +5,15 @@ import com.staticvoid.menuandordersservice.model.enums.Season;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
+@NoArgsConstructor
 public class MenuItemRequestDto {
 
     @NotBlank(message = "Menu item name is required")
@@ -27,76 +31,17 @@ public class MenuItemRequestDto {
     @DecimalMin(value = "0.00", message = "Base price cannot be negative")
     private BigDecimal basePrice;
 
-    private boolean available = true;
+    private Boolean available;
 
     private List<Long> allowedIngredientIds = new ArrayList<>();
 
     private List<Long> defaultIngredientIds = new ArrayList<>();
 
-    public MenuItemRequestDto() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public MenuItemType getType() {
-        return type;
-    }
-
-    public Season getSeason() {
-        return season;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public BigDecimal getBasePrice() {
-        return basePrice;
-    }
-
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public List<Long> getAllowedIngredientIds() {
-        return allowedIngredientIds;
-    }
-
-    public List<Long> getDefaultIngredientIds() {
-        return defaultIngredientIds;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setType(MenuItemType type) {
-        this.type = type;
-    }
-
-    public void setSeason(Season season) {
-        this.season = season;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setBasePrice(BigDecimal basePrice) {
-        this.basePrice = basePrice;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
-    }
-
     public void setAllowedIngredientIds(List<Long> allowedIngredientIds) {
-        this.allowedIngredientIds = allowedIngredientIds;
+        this.allowedIngredientIds = allowedIngredientIds == null ? new ArrayList<>() : allowedIngredientIds;
     }
 
     public void setDefaultIngredientIds(List<Long> defaultIngredientIds) {
-        this.defaultIngredientIds = defaultIngredientIds;
+        this.defaultIngredientIds = defaultIngredientIds == null ? new ArrayList<>() : defaultIngredientIds;
     }
 }

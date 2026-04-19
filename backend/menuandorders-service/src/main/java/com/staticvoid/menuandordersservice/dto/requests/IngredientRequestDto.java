@@ -1,11 +1,16 @@
 package com.staticvoid.menuandordersservice.dto.requests;
 
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+@Data
+@NoArgsConstructor
 public class IngredientRequestDto {
 
     @NotBlank(message = "Ingredient name is required")
@@ -13,34 +18,8 @@ public class IngredientRequestDto {
 
     @NotNull(message = "Extra price is required")
     @DecimalMin(value = "0.00", message = "Extra price cannot be negative")
+    @Digits(integer = 8, fraction = 2, message = "Extra price must have up to 8 digits and 2 decimal places")
     private BigDecimal extraPrice;
 
-    private boolean available = true;
-
-    public IngredientRequestDto() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public BigDecimal getExtraPrice() {
-        return extraPrice;
-    }
-
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setExtraPrice(BigDecimal extraPrice) {
-        this.extraPrice = extraPrice;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
-    }
+    private Boolean available;
 }

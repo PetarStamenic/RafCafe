@@ -1,9 +1,20 @@
 package com.staticvoid.menuandordersservice.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "menu_item_ingredients")
+@Table(
+        name = "menu_item_ingredients",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"menu_item_id", "ingredient_id"})
+        }
+)
+@Getter
+@Setter
+@NoArgsConstructor
 public class MenuItemIngredient {
 
     @Id
@@ -21,44 +32,9 @@ public class MenuItemIngredient {
     @Column(nullable = false)
     private boolean defaultSelected = false;
 
-    public MenuItemIngredient() {
-    }
-
     public MenuItemIngredient(MenuItem menuItem, Ingredient ingredient, boolean defaultSelected) {
         this.menuItem = menuItem;
         this.ingredient = ingredient;
-        this.defaultSelected = defaultSelected;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public MenuItem getMenuItem() {
-        return menuItem;
-    }
-
-    public Ingredient getIngredient() {
-        return ingredient;
-    }
-
-    public boolean isDefaultSelected() {
-        return defaultSelected;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setMenuItem(MenuItem menuItem) {
-        this.menuItem = menuItem;
-    }
-
-    public void setIngredient(Ingredient ingredient) {
-        this.ingredient = ingredient;
-    }
-
-    public void setDefaultSelected(boolean defaultSelected) {
         this.defaultSelected = defaultSelected;
     }
 }

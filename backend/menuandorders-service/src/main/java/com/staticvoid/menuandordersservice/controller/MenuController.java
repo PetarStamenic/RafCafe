@@ -1,6 +1,6 @@
 package com.staticvoid.menuandordersservice.controller;
 
-import com.staticvoid.menuandordersservice.dto.MenuItemFilterDto;
+import com.staticvoid.menuandordersservice.dto.filters.MenuItemFilterDto;
 import com.staticvoid.menuandordersservice.dto.requests.MenuItemRequestDto;
 import com.staticvoid.menuandordersservice.dto.response.MenuItemResponseDto;
 import com.staticvoid.menuandordersservice.model.enums.MenuItemType;

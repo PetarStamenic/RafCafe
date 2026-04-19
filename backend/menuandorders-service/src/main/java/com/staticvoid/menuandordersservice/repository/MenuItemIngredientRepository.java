@@ -12,5 +12,7 @@ public interface MenuItemIngredientRepository extends JpaRepository<MenuItemIngr
 
     Optional<MenuItemIngredient> findByMenuItemIdAndIngredientId(Long menuItemId, Long ingredientId);
 
+    boolean existsByIngredientId(Long ingredientId);
+
     void deleteByMenuItemId(Long menuItemId);
 }

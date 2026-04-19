@@ -2,10 +2,14 @@ package com.staticvoid.menuandordersservice.service;
 
 import com.staticvoid.menuandordersservice.dto.requests.IngredientRequestDto;
 import com.staticvoid.menuandordersservice.dto.response.IngredientResponseDto;
+import com.staticvoid.menuandordersservice.mapper.IngredientMapper;
 import com.staticvoid.menuandordersservice.model.Ingredient;
 import com.staticvoid.menuandordersservice.repository.IngredientRepository;
+import com.staticvoid.menuandordersservice.repository.MenuItemIngredientRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -14,27 +18,36 @@ import java.util.List;
 public class IngredientService {
 
     private final IngredientRepository ingredientRepository;
+    private final MenuItemIngredientRepository menuItemIngredientRepository;
+    private final IngredientMapper ingredientMapper;
 
-    public IngredientService(IngredientRepository ingredientRepository) {
+    public IngredientService(IngredientRepository ingredientRepository,
+                             MenuItemIngredientRepository menuItemIngredientRepository,
+                             IngredientMapper ingredientMapper) {
         this.ingredientRepository = ingredientRepository;
+        this.menuItemIngredientRepository = menuItemIngredientRepository;
+        this.ingredientMapper = ingredientMapper;
     }
 
+    @Transactional(readOnly = true)
     public List<IngredientResponseDto> getAll() {
         return ingredientRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(ingredientMapper::toResponse)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public IngredientResponseDto getById(Long id) {
         Ingredient ingredient = ingredientRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Ingredient not found with id: " + id
                 ));
 
-        return toResponse(ingredient);
+        return ingredientMapper.toResponse(ingredient);
     }
 
+    @Transactional(readOnly = true)
     public Ingredient getEntityById(Long id) {
         return ingredientRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -42,60 +55,51 @@ public class IngredientService {
                 ));
     }
 
+    @Transactional
     public IngredientResponseDto create(IngredientRequestDto request) {
-        if (ingredientRepository.existsByNameIgnoreCase(request.getName())) {
+        try {
+            Ingredient ingredient = ingredientMapper.toEntity(request);
+            Ingredient saved = ingredientRepository.save(ingredient);
+            return ingredientMapper.toResponse(saved);
+        } catch (DataIntegrityViolationException ex) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Ingredient with that name already exists"
+                    HttpStatus.CONFLICT, "Ingredient name must be unique"
             );
         }
-
-        Ingredient ingredient = new Ingredient();
-        ingredient.setName(request.getName());
-        ingredient.setExtraPrice(request.getExtraPrice());
-        ingredient.setAvailable(request.isAvailable());
-
-        Ingredient saved = ingredientRepository.save(ingredient);
-        return toResponse(saved);
     }
 
+    @Transactional
     public IngredientResponseDto update(Long id, IngredientRequestDto request) {
         Ingredient ingredient = ingredientRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Ingredient not found with id: " + id
                 ));
 
-        Ingredient existingWithSameName = ingredientRepository.findByNameIgnoreCase(request.getName())
-                .orElse(null);
+        ingredientMapper.updateEntity(ingredient, request);
 
-        if (existingWithSameName != null && !existingWithSameName.getId().equals(id)) {
+        try {
+            Ingredient saved = ingredientRepository.save(ingredient);
+            return ingredientMapper.toResponse(saved);
+        } catch (DataIntegrityViolationException ex) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Ingredient with that name already exists"
+                    HttpStatus.CONFLICT, "Ingredient name must be unique"
             );
         }
-
-        ingredient.setName(request.getName());
-        ingredient.setExtraPrice(request.getExtraPrice());
-        ingredient.setAvailable(request.isAvailable());
-
-        Ingredient saved = ingredientRepository.save(ingredient);
-        return toResponse(saved);
     }
 
+    @Transactional
     public void delete(Long id) {
         Ingredient ingredient = ingredientRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Ingredient not found with id: " + id
                 ));
 
-        ingredientRepository.delete(ingredient);
-    }
+        if (menuItemIngredientRepository.existsByIngredientId(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Ingredient is in use and cannot be deleted"
+            );
+        }
 
-    private IngredientResponseDto toResponse(Ingredient ingredient) {
-        return new IngredientResponseDto(
-                ingredient.getId(),
-                ingredient.getName(),
-                ingredient.getExtraPrice(),
-                ingredient.isAvailable()
-        );
+        ingredientRepository.delete(ingredient);
     }
 }

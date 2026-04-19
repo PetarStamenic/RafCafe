@@ -1,6 +1,6 @@
 package com.staticvoid.menuandordersservice.service;
 
-import com.staticvoid.menuandordersservice.dto.MenuItemFilterDto;
+import com.staticvoid.menuandordersservice.dto.filters.MenuItemFilterDto;
 import com.staticvoid.menuandordersservice.dto.requests.MenuItemRequestDto;
 import com.staticvoid.menuandordersservice.dto.response.MenuItemResponseDto;
 import com.staticvoid.menuandordersservice.mapper.MenuMapper;
@@ -9,12 +9,13 @@ import com.staticvoid.menuandordersservice.model.MenuItem;
 import com.staticvoid.menuandordersservice.model.MenuItemIngredient;
 import com.staticvoid.menuandordersservice.repository.MenuItemRepository;
 import com.staticvoid.menuandordersservice.specification.MenuItemSpecification;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,46 +24,50 @@ public class MenuService {
 
     private final MenuItemRepository menuItemRepository;
     private final IngredientService ingredientService;
+    private final MenuMapper menuMapper;
 
     public MenuService(MenuItemRepository menuItemRepository,
-                       IngredientService ingredientService) {
+                       IngredientService ingredientService,
+                       MenuMapper menuMapper) {
         this.menuItemRepository = menuItemRepository;
         this.ingredientService = ingredientService;
+        this.menuMapper = menuMapper;
     }
 
+    @Transactional(readOnly = true)
     public List<MenuItemResponseDto> getAll(MenuItemFilterDto filter) {
         return menuItemRepository.findAll(MenuItemSpecification.filterBy(filter))
                 .stream()
-                .map(MenuMapper::toResponse)
+                .map(menuMapper::toResponse)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public MenuItemResponseDto getById(Long id) {
         MenuItem menuItem = menuItemRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Menu item not found with id: " + id
                 ));
 
-        return MenuMapper.toResponse(menuItem);
+        return menuMapper.toResponse(menuItem);
     }
 
     @Transactional
     public MenuItemResponseDto create(MenuItemRequestDto request) {
-        if (menuItemRepository.existsByNameIgnoreCase(request.getName())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Menu item with that name already exists"
-            );
-        }
-
         validateIngredientLists(request);
 
         MenuItem menuItem = new MenuItem();
-        MenuMapper.updateMenuItemFromRequest(menuItem, request);
-
+        menuMapper.updateMenuItemFromRequest(menuItem, request);
         syncIngredients(menuItem, request);
 
-        MenuItem savedMenuItem = menuItemRepository.save(menuItem);
-        return MenuMapper.toResponse(savedMenuItem);
+        try {
+            MenuItem savedMenuItem = menuItemRepository.save(menuItem);
+            return menuMapper.toResponse(savedMenuItem);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Menu item name must be unique"
+            );
+        }
     }
 
     @Transactional
@@ -72,24 +77,22 @@ public class MenuService {
                         HttpStatus.NOT_FOUND, "Menu item not found with id: " + id
                 ));
 
-        MenuItem existingWithSameName = menuItemRepository.findByNameIgnoreCase(request.getName())
-                .orElse(null);
-
-        if (existingWithSameName != null && !existingWithSameName.getId().equals(id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Menu item with that name already exists"
-            );
-        }
-
         validateIngredientLists(request);
 
-        MenuMapper.updateMenuItemFromRequest(menuItem, request);
+        menuMapper.updateMenuItemFromRequest(menuItem, request);
         syncIngredients(menuItem, request);
 
-        MenuItem savedMenuItem = menuItemRepository.save(menuItem);
-        return MenuMapper.toResponse(savedMenuItem);
+        try {
+            MenuItem savedMenuItem = menuItemRepository.save(menuItem);
+            return menuMapper.toResponse(savedMenuItem);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Menu item name must be unique"
+            );
+        }
     }
 
+    @Transactional
     public void delete(Long id) {
         MenuItem menuItem = menuItemRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -100,8 +103,8 @@ public class MenuService {
     }
 
     private void validateIngredientLists(MenuItemRequestDto request) {
-        Set<Long> allowedIds = new HashSet<>(request.getAllowedIngredientIds());
-        Set<Long> defaultIds = new HashSet<>(request.getDefaultIngredientIds());
+        Set<Long> allowedIds = normalizeIds(request.getAllowedIngredientIds());
+        Set<Long> defaultIds = normalizeIds(request.getDefaultIngredientIds());
 
         if (!allowedIds.containsAll(defaultIds)) {
             throw new ResponseStatusException(
@@ -112,11 +115,12 @@ public class MenuService {
     }
 
     private void syncIngredients(MenuItem menuItem, MenuItemRequestDto request) {
-        Set<Long> defaultIds = new HashSet<>(request.getDefaultIngredientIds());
+        Set<Long> allowedIds = normalizeIds(request.getAllowedIngredientIds());
+        Set<Long> defaultIds = normalizeIds(request.getDefaultIngredientIds());
 
         menuItem.getAllowedIngredients().clear();
 
-        for (Long ingredientId : request.getAllowedIngredientIds()) {
+        for (Long ingredientId : allowedIds) {
             Ingredient ingredient = ingredientService.getEntityById(ingredientId);
 
             MenuItemIngredient link = new MenuItemIngredient();
@@ -126,5 +130,12 @@ public class MenuService {
 
             menuItem.getAllowedIngredients().add(link);
         }
+    }
+
+    private Set<Long> normalizeIds(List<Long> ids) {
+        if (ids == null) {
+            return new LinkedHashSet<>();
+        }
+        return new LinkedHashSet<>(ids);
     }
 }
