@@ -27,6 +27,16 @@ public class GlobalExceptionHandler {
         return buildResponse(403, ex.getMessage());
     }
 
+    @ExceptionHandler(BannedUserException.class)
+    public ResponseEntity<ErrorResponseDTO> handleBannedUserException(BannedUserException ex) {
+        return buildResponse(403, ex.getMessage());
+    }
+
+    @ExceptionHandler(BanNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleBanNotFoundException(BanNotFoundException ex) {
+        return buildResponse(404, ex.getMessage());
+    }
+
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ErrorResponseDTO> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
         return buildResponse(403, "Access denied, don't even try");

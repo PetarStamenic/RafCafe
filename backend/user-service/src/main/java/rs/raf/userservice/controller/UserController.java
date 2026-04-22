@@ -32,8 +32,7 @@ public class UserController {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "204", description = "No content")
+        @ApiResponse(responseCode = "200", description = "OK")
     })
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAll() {
@@ -66,21 +65,23 @@ public class UserController {
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Created"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "409", description = "Conflict"),
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User registration data", required = true)
     @PostMapping
     public ResponseEntity<UserResponseDTO> registerUser(
-            @RequestBody @Valid RegisterUserRequestDTO requestDTO,
-            HttpServletRequest httpRequest
+            @RequestBody @Valid RegisterUserRequestDTO dto,
+            HttpServletRequest request
     ) {
-        String ip = httpRequest.getRemoteAddr();
-        var response = service.registerUser(requestDTO, ip);
+        String ip = request.getRemoteAddr();
+        var response = service.registerUser(dto, ip);
         return ResponseEntity.status(201).body(response);
     }
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Not found"),
         @ApiResponse(responseCode = "409", description = "Conflict"),
@@ -113,14 +114,17 @@ public class UserController {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Not found"),
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User login data", required = true)
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> loginUser(
-            @RequestBody @Valid LoginRequestDTO request
+            @RequestBody @Valid LoginRequestDTO dto,
+            HttpServletRequest request
     ) {
-        var response = service.loginUser(request);
+        String ip = request.getRemoteAddr();
+        var response = service.loginUser(dto, ip);
         return ResponseEntity.ok(response);
     }
 }

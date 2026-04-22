@@ -9,28 +9,33 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import rs.raf.userservice.dto.user.*;
+import rs.raf.userservice.error.BannedUserException;
 import rs.raf.userservice.error.PasswordMismatchException;
 import rs.raf.userservice.error.UserAlreadyExistsException;
 import rs.raf.userservice.error.UserNotFoundException;
 import rs.raf.userservice.mapper.UserMapper;
 import rs.raf.userservice.model.User;
+import rs.raf.userservice.repository.BanRepository;
 import rs.raf.userservice.repository.UserRepository;
 import rs.raf.userservice.util.JWTUtil;
 
 @Service
 public class UserService {
     private final UserRepository repo;
+    private final BanRepository bans;
     private final UserMapper mapper;
     private final JWTUtil jwt;
     private final BCryptPasswordEncoder passwords;
 
     public UserService(
         UserRepository repo,
+        BanRepository bans,
         UserMapper mapper,
         JWTUtil jwt,
         BCryptPasswordEncoder passwords
     ) {
         this.repo = repo;
+        this.bans = bans;
         this.mapper = mapper;
         this.jwt = jwt;
         this.passwords = passwords;
@@ -53,6 +58,10 @@ public class UserService {
     }
 
     public UserResponseDTO registerUser(RegisterUserRequestDTO dto, String ip) {
+        if (bans.existsByIpAddress(ip)) {
+            throw new BannedUserException("Registration from IP address " + ip + " is banned");
+        }
+
         User user = mapper.toEntity(dto);
         user.setIpAddress(ip);
         try {
@@ -60,6 +69,7 @@ public class UserService {
         } catch (DataIntegrityViolationException e) {
             throw new UserAlreadyExistsException("User with username " + dto.username() + " or email " + dto.email() + " already exists");
         }
+
         return mapper.toDTO(user);
     }
 
@@ -99,7 +109,11 @@ public class UserService {
         repo.delete(user);
     }
 
-    public LoginResponseDTO loginUser(LoginRequestDTO dto) {
+    public LoginResponseDTO loginUser(LoginRequestDTO dto, String ip) {
+        if (bans.existsByIpAddress(ip)) {
+            throw new BannedUserException("Login from IP address " + ip + " is banned");
+        }
+
         User user = repo.findByUsername(dto.username())
             .orElseThrow(() -> new UserNotFoundException("Username and password do not match"));
 
