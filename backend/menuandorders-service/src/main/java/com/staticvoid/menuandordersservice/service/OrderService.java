@@ -184,9 +184,11 @@ public class OrderService {
                                 Integer loyaltyPointsUsed,
                                 List<CreateOrderItemRequestDto> itemRequests) {
 
+        int effectivePoints = getVerifiedLoyaltyPointsToUse(customerId, loyaltyPointsUsed);
+
         order.setCustomerId(customerId);
         order.setNote(note);
-        order.setLoyaltyPointsUsed(loyaltyPointsUsed == null ? 0 : loyaltyPointsUsed);
+        order.setLoyaltyPointsUsed(effectivePoints);
 
         List<OrderItem> rebuiltItems = new ArrayList<>();
         BigDecimal subtotal = BigDecimal.ZERO;
@@ -200,9 +202,39 @@ public class OrderService {
 
         order.setItems(rebuiltItems);
 
-        BigDecimal loyaltyDiscount = calculateLoyaltyDiscount(order.getLoyaltyPointsUsed(), subtotal);
+        BigDecimal loyaltyDiscount = calculateLoyaltyDiscount(effectivePoints, subtotal);
         order.setLoyaltyDiscount(loyaltyDiscount);
         order.setTotalPrice(subtotal.subtract(loyaltyDiscount));
+    }
+
+
+    private int getVerifiedLoyaltyPointsToUse(Long customerId, Integer requestedPoints) {
+        if (requestedPoints == null || requestedPoints == 0) {
+            return 0;
+        }
+
+        if (requestedPoints < 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Loyalty points used cannot be negative"
+            );
+        }
+
+        int availablePoints = getAvailableLoyaltyPointsForCustomer(customerId);
+
+        if (requestedPoints > availablePoints) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "User does not have enough loyalty points"
+            );
+        }
+
+        return requestedPoints;
+    }
+
+    private int getAvailableLoyaltyPointsForCustomer(Long customerId) {
+        //will implement when services communicate
+        return 0;
     }
 
     private OrderItem buildOrderItem(CreateOrderItemRequestDto request) {
