@@ -5,6 +5,8 @@ services:
       - "8081:8081"
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
       - USER_DB=${USER_DB}
 
