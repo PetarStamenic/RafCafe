@@ -1,6 +1,6 @@
 services:
   auth:
-    build: backend/auth
+    build: backend/user-service
     ports:
       - "8081:8081"
     depends_on:
@@ -19,7 +19,7 @@ services:
       - db_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} -h localhost"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d postgres"]
       interval: 1m30s
       timeout: 30s
       retries: 5
