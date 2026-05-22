@@ -26,7 +26,7 @@ jobs:
   integration-tests:
     runs-on: ubuntu-24.04
     needs: unit-tests
-    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v6
@@ -48,12 +48,13 @@ jobs:
         run: sleep 60 && python backend/user-service/src/test/python/test.py
 
       - name: Tear down
+        if: always()
         run: docker compose down -v
 
   Docker-upload:
     runs-on: ubuntu-24.04
     needs: integration-tests
-    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v6
