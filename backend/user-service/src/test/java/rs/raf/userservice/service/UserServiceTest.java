@@ -172,6 +172,6 @@ class UserServiceTest {
             () -> service.registerUser(dto, "192.168.1.2")
         );
 
-        assertEquals("User with username alice already exists", ex.getMessage());
+        assertEquals("User with username alice or email alice@example.com already exists", ex.getMessage());
     }
 }
