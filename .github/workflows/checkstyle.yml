@@ -17,5 +17,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workdir: 'backend'
-          level: 'error'
-          fail_level: 'error'
+          level: error
+          fail_level: error
