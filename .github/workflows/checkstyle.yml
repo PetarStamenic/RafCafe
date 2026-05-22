@@ -1,6 +1,9 @@
 name: Checkstyle
 
 on:
+  push:
+    branches:
+      - feature/gh-actions
   pull_request:
 
 jobs:

@@ -45,7 +45,7 @@ jobs:
         run: pip install requests
 
       - name: Run integration tests
-        run: sleep 120 && python backend/user-service/src/test/python/test.py
+        run: sleep 60 && python backend/user-service/src/test/python/test.py
 
       - name: Tear down
         run: docker compose down -v
@@ -67,7 +67,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: backend/user-service
           push: true
