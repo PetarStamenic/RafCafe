@@ -20,12 +20,16 @@ import rs.raf.userservice.error.UserNotFoundException;
 import rs.raf.userservice.mapper.UserMapper;
 import rs.raf.userservice.model.User;
 import rs.raf.userservice.model.UserRole;
+import rs.raf.userservice.repository.BanRepository;
 import rs.raf.userservice.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
     @Mock
     private UserRepository repo;
+
+    @Mock
+    private BanRepository bans;
 
     @Mock
     private UserMapper mapper;
@@ -165,7 +169,7 @@ class UserServiceTest {
 
         UserAlreadyExistsException ex = assertThrows(
             UserAlreadyExistsException.class,
-            () -> service.registerUser(dto, "192.168.1.1")
+            () -> service.registerUser(dto, "192.168.1.2")
         );
 
         assertEquals("User with username alice already exists", ex.getMessage());
