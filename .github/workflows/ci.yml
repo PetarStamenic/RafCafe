@@ -21,7 +21,7 @@ jobs:
           cache: 'maven'
 
       - name: Run unit tests
-        run: mvn -q test
+        run: cd backend/user-service && mvn -q test
 
   integration-tests:
     runs-on: ubuntu-24.04
