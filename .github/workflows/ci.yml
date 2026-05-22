@@ -45,7 +45,7 @@ jobs:
         run: pip install requests
 
       - name: Run integration tests
-        run: python backend/user-service/src/test/python/test.py
+        run: sleep 120 && python backend/user-service/src/test/python/test.py
 
       - name: Tear down
         run: docker compose down -v
