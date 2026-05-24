@@ -1,0 +1,8 @@
+- name: Deploy
+  hosts: all
+
+tasks:
+  - name: application.properties
+    ansible.builtin.template:
+      src: application.properties.j2
+      dest: /home/stiboly/RafCafe/backend/src/main/resources/application.properties
