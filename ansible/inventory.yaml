@@ -3,4 +3,4 @@ all:
     localhost:
       ansible_connection: local
       profile: prod
-      port: 8081
+      server_port: 8081
