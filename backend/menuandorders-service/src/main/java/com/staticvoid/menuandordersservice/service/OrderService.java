@@ -184,7 +184,7 @@ public class OrderService {
                                 Integer loyaltyPointsUsed,
                                 List<CreateOrderItemRequestDto> itemRequests) {
 
-        int effectivePoints = getVerifiedLoyaltyPointsToUse(customerId, loyaltyPointsUsed);
+        int effectivePoints = getVerifiedLoyaltyPointsToUse(loyaltyPointsUsed);
 
         order.setCustomerId(customerId);
         order.setNote(note);
@@ -208,7 +208,7 @@ public class OrderService {
     }
 
 
-    private int getVerifiedLoyaltyPointsToUse(Long customerId, Integer requestedPoints) {
+    private int getVerifiedLoyaltyPointsToUse(Integer requestedPoints) {
         if (requestedPoints == null || requestedPoints == 0) {
             return 0;
         }
@@ -220,22 +220,12 @@ public class OrderService {
             );
         }
 
-        int availablePoints = getAvailableLoyaltyPointsForCustomer(customerId);
-
-        if (requestedPoints > availablePoints) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "User does not have enough loyalty points"
-            );
-        }
-
-        return requestedPoints;
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Loyalty points redemption is temporarily unavailable"
+        );
     }
 
-    private int getAvailableLoyaltyPointsForCustomer(Long customerId) {
-        //will implement when services communicate
-        return 0;
-    }
 
     private OrderItem buildOrderItem(CreateOrderItemRequestDto request) {
         MenuItem menuItem = menuItemRepository.findById(request.getMenuItemId())
