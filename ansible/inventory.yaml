@@ -1,0 +1,6 @@
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+      profile: prod
+      server_port: 8081

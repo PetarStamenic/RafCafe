@@ -1,0 +1,8 @@
+- name: Deploy
+  hosts: all
+
+  tasks:
+    - name: application.properties
+      ansible.builtin.template:
+        src: application.properties.j2
+        dest: "{{ playbook_dir }}/../backend/user-service/src/main/resources/application.properties"
