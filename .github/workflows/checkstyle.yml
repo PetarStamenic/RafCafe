@@ -2,9 +2,9 @@ name: Checkstyle
 
 on:
   pull_request:
-    push:
-      branches:
-        -menuandordersPart2
+  push:
+    branches:
+      - menuandordersPart2
 
 jobs:
   checkstyle:
@@ -19,3 +19,4 @@ jobs:
           workdir: 'backend'
           level: error
           fail_level: error
+
