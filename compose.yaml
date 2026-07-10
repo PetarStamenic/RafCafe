@@ -11,6 +11,18 @@ services:
     environment:
       - USER_DB=${USER_DB}
 
+  menuandorders:
+    build: backend/menuandorders-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - CAFE_DB=${CAFE_DB}
+
   db:
     image: postgres:18-alpine
     ports:

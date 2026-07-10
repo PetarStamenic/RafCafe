@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: main
+    branches:
+      - main
+      - menuandordersPart2
   pull_request:
 
 jobs:
@@ -18,13 +20,16 @@ jobs:
           java-version: '25'
           cache: 'maven'
 
-      - name: Run unit tests
+      - name: Run user-service unit tests
         run: cd backend/user-service && mvn -q test
+
+      - name: Run menuandorders-service unit tests
+        run: cd backend/menuandorders-service && mvn -q test
 
   integration-tests:
     runs-on: ubuntu-24.04
     needs: unit-tests
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/menuandordersPart2')
 
     steps:
       - uses: actions/checkout@v6
@@ -39,20 +44,23 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: pip install requests
 
-      - name: Run integration tests
+      - name: Run user-service integration tests
         run: sleep 60 && python backend/user-service/src/test/python/test.py
 
-      - name: Tear down
+      - name: Run menuandorders-service integration tests
+        run: python backend/menuandorders-service/src/test/python/test.py
+
+      - name: Tear down Docker Compose
         if: always()
         run: docker compose down -v
 
   Docker-upload:
     runs-on: ubuntu-24.04
     needs: integration-tests
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/menuandordersPart2')
 
     steps:
       - uses: actions/checkout@v6
@@ -65,9 +73,20 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push user-service Docker image
         uses: docker/build-push-action@v7
         with:
           context: backend/user-service
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/user-service:latest, ${{ secrets.DOCKER_USERNAME }}/user-service:${{ github.sha }}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/user-service:latest
+            ${{ secrets.DOCKER_USERNAME }}/user-service:${{ github.sha }}
+
+      - name: Build and push menuandorders-service Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: backend/menuandorders-service
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/menuandorders-service:latest
+            ${{ secrets.DOCKER_USERNAME }}/menuandorders-service:${{ github.sha }}1
